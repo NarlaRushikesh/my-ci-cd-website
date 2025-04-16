@@ -1,56 +1,46 @@
 pipeline {
     agent any
 
-    stages {
-        stage('Clone Repo') {
-            steps {
-                git 'https://github.com/NarlaRushikesh/my-ci-cd-website.git'
-            }
-        }
+    environment {
+        IMAGE_NAME = 'my-ci-cd-website'
+        CONTAINER_NAME = 'my-website-container'
+    }
 
-        stage('Remove Old Container') {
+    stages {
+        stage('Clone Repository') {
             steps {
-                script {
-                    // Remove old container if it exists (force remove with -f flag)
-                    sh 'docker rm -f my-cicd-site || true'
-                }
+                git url: 'https://github.com/NarlaRushikesh/my-ci-cd-website.git'
             }
         }
 
         stage('Build Docker Image') {
             steps {
                 script {
-                    // Build the Docker image (assuming Dockerfile is in the repo)
-                    sh 'docker build -t my-cicd-website .'
+                    docker.build("${IMAGE_NAME}")
                 }
             }
         }
 
-        stage('Run New Container') {
+        stage('Run Docker Container') {
             steps {
                 script {
-                    // Run the new container with the built image
-                    sh 'docker run -d -p 9090:80 --name my-cicd-site my-cicd-website'
-                }
-            }
-        }
-
-        stage('Verify Container') {
-            steps {
-                script {
-                    // Optionally verify the container is running and responding
-                    sh 'curl -f http://localhost:9090 || exit 1'
-                }
-            }
-        }
-
-        stage('Clean Up') {
-            steps {
-                script {
-                    // Optionally clean up the image after testing
-                    sh 'docker rmi my-cicd-website || true'
+                    // Stop and remove container if it already exists
+                    bat """
+                    docker rm -f ${CONTAINER_NAME} || echo "No existing container"
+                    docker run -d --name ${CONTAINER_NAME} -p 8080:80 ${IMAGE_NAME}
+                    """
                 }
             }
         }
     }
+
+    post {
+        success {
+            echo '🎉 Docker Image Built and Container is Running on Port 8080!'
+        }
+        failure {
+            echo '❌ Build Failed. Check the console for errors.'
+        }
+    }
 }
+
