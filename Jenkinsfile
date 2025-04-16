@@ -2,8 +2,8 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = 'my-ci-cd-website'
-        CONTAINER_NAME = 'my-website-container'
+        IMAGE_NAME = 'my-cicd-website'
+        CONTAINER_NAME = 'my-cicd-site'
     }
 
     stages {
@@ -27,7 +27,7 @@ pipeline {
                     // Stop and remove container if it already exists
                     bat """
                     docker rm -f ${CONTAINER_NAME} || echo "No existing container"
-                    docker run -d --name ${CONTAINER_NAME} -p 8080:80 ${IMAGE_NAME}
+                    docker run -d --name ${CONTAINER_NAME} -p 9090:80 ${IMAGE_NAME}
                     """
                 }
             }
