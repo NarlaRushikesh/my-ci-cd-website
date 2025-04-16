@@ -8,18 +8,20 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Remove Old Container') {
             steps {
                 script {
-                    sh 'docker build -t my-cicd-website .'
+                    // Remove old container if it exists (force remove with -f flag)
+                    sh 'docker rm -f my-cicd-site || true'
                 }
             }
         }
 
-        stage('Remove Old Container') {
+        stage('Build Docker Image') {
             steps {
                 script {
-                    sh 'docker rm -f my-cicd-site || true'
+                    // Build the Docker image (assuming Dockerfile is in the repo)
+                    sh 'docker build -t my-cicd-website .'
                 }
             }
         }
@@ -27,7 +29,26 @@ pipeline {
         stage('Run New Container') {
             steps {
                 script {
-                    sh 'docker run -d -p 8081:80 --name my-cicd-site my-cicd-website'
+                    // Run the new container with the built image
+                    sh 'docker run -d -p 9090:80 --name my-cicd-site my-cicd-website'
+                }
+            }
+        }
+
+        stage('Verify Container') {
+            steps {
+                script {
+                    // Optionally verify the container is running and responding
+                    sh 'curl -f http://localhost:9090 || exit 1'
+                }
+            }
+        }
+
+        stage('Clean Up') {
+            steps {
+                script {
+                    // Optionally clean up the image after testing
+                    sh 'docker rmi my-cicd-website || true'
                 }
             }
         }
