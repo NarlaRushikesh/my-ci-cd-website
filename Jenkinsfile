@@ -16,7 +16,7 @@
         stage('Build Docker Image') {
             steps {
                 script {
-                    docker.build("${IMAGE_NAME}")
+                   bat "docker build -t ${IMAGE_NAME} ."
                 }
             }
         }
@@ -27,7 +27,7 @@
                     // Stop and remove container if it already exists
                    bat """
                     cmd /c "docker rm -f ${CONTAINER_NAME} || echo 'No existing container'"
-                    cmd /c "docker run -d --name ${CONTAINER_NAME} -p 8080:80 ${IMAGE_NAME}"
+                    cmd /c "docker run -d --name ${CONTAINER_NAME} -p 8081:80 ${IMAGE_NAME}"
                     """
                 }
             }
