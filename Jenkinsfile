@@ -1,46 +1,53 @@
-    pipeline {
+pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = 'my-cicd-website'
-        CONTAINER_NAME = 'my-cicd-site'
+        IMAGE_NAME = 'ubuntu-apache-web'
+        CONTAINER_NAME = 'web-container'
     }
 
     stages {
-        stage('Clone Repository') {
+        stage('Checkout') {
             steps {
-                git url: 'https://github.com/NarlaRushikesh/my-ci-cd-website.git'
+                git branch: "${env.BRANCH_NAME}", url: 'https://github.com/NarlaRushikesh/my-ci-cd-website.git'
             }
         }
 
         stage('Build Docker Image') {
             steps {
                 script {
-                   bat "docker build -t ${IMAGE_NAME} ."
+                    docker.build("${IMAGE_NAME}")
                 }
             }
         }
 
-        stage('Run Docker Container') {
+        stage('Deploy') {
+            when {
+                branch 'master'
+            }
             steps {
                 script {
-                    // Stop and remove container if it already exists
-                   bat """
-                    cmd /c "docker rm -f ${CONTAINER_NAME} || echo 'No existing container'"
-                    cmd /c "docker run -d --name ${CONTAINER_NAME} -p 8081:80 ${IMAGE_NAME}"
-                    """
+                    // Stop old container if exists
+                    sh "docker rm -f ${CONTAINER_NAME} || true"
+                    // Run new container on port 82
+                    sh "docker run -d -p 82:82 --name ${CONTAINER_NAME} ${IMAGE_NAME}"
                 }
+            }
+        }
+
+        stage('Build Only') {
+            when {
+                branch 'develop'
+            }
+            steps {
+                echo "Build done. No deployment for develop branch."
             }
         }
     }
 
     post {
-        success {
-            echo '🎉 Docker Image Built and Container is Running on Port 8080!'
-        }
-        failure {
-            echo '❌ Build Failed. Check the console for errors.'
+        always {
+            echo "Pipeline finished for branch: ${env.BRANCH_NAME}"
         }
     }
 }
-

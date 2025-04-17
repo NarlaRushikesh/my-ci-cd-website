@@ -1,11 +1,15 @@
-# Use an official lightweight nginx image
-FROM nginx:alpine
+FROM ubuntu:20.04
 
-# Remove the default nginx static files
-RUN rm -rf /usr/share/nginx/html/*
+ENV DEBIAN_FRONTEND=noninteractive
 
-# Copy your website files into the nginx public folder
-COPY . /usr/share/nginx/html
+RUN apt update && \
+    apt install -y apache2 && \
+    apt clean && \
+    rm -rf /var/lib/apt/lists/*
 
-# Expose port 80
-EXPOSE 80
+COPY . /var/www/html
+
+RUN sed -i 's/80/82/g' /etc/apache2/ports.conf /etc/apache2/sites-enabled/000-default.conf
+EXPOSE 82
+
+CMD ["apachectl", "-D", "FOREGROUND"]
