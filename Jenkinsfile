@@ -2,9 +2,10 @@ pipeline{
     agent any
 
     stages{
-        stage("code"){
+        stage("Clone Code"){
             steps{
             echo "Cloning the code"
+            git url:"https://github.com/NarlaRushikesh/my-ci-cd-website.git", branch:"master"
             }
         }
 
@@ -12,6 +13,7 @@ pipeline{
             
             steps{
             echo " Building the docker image"
+            sh "docker build -t site ."
             }
         }
 
