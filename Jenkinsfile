@@ -21,8 +21,8 @@ pipeline{
             steps{
             echo "Pushing to docker hub"
             withCredentials([usernamePassword(credentialsId:"docker-hub-credentials",passwordVariable:"docker-hub-pass",usernameVariable:"docker-hub-id")])
-            bat
-            """
+            bat """
+            echo Logging into Docker Hub
             docker login -u ${env.docker-hub-id} -p ${env.docker-hub-pass}
             """
             }
