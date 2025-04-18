@@ -40,7 +40,7 @@ pipeline {
                     sh "docker rm -f ${CONTAINER_NAME} || true"
 
                     // Run the new container on port 8080
-                    sh "docker run -d -p 8080:80 --name ${CONTAINER_NAME} ${IMAGE_NAME}"
+                    sh "docker run -d -p 8081:80 --name ${CONTAINER_NAME} ${IMAGE_NAME}"
                 }
             }
         }
