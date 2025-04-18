@@ -13,7 +13,7 @@ pipeline{
             
             steps{
             echo " Building the docker image"
-            sh "docker build -t site ."
+            bat "docker build -t site ."
             }
         }
 
