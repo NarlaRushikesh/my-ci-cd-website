@@ -2,8 +2,16 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = 'ubuntu-apache-web'
-        CONTAINER_NAME = 'web-container'
+        IMAGE_NAME = 'my-webpage'      // Docker image name
+        CONTAINER_NAME = 'web-container' // Container name
+    }
+
+    triggers {
+        // Webhook trigger for GitHub
+        githubPush()
+
+        // Schedule trigger to run daily at 8AM UTC
+        cron('H 8 * * *')
     }
 
     stages {
@@ -16,6 +24,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
+                    // Building the Docker image using the Dockerfile
                     docker.build("${IMAGE_NAME}")
                 }
             }
@@ -23,21 +32,22 @@ pipeline {
 
         stage('Deploy') {
             when {
-                branch 'master'
+                branch 'master'  // Only deploy on master branch
             }
             steps {
                 script {
-                    // Stop old container if exists
+                    // Stop the old container if it exists
                     sh "docker rm -f ${CONTAINER_NAME} || true"
-                    // Run new container on port 82
-                    sh "docker run -d -p 82:82 --name ${CONTAINER_NAME} ${IMAGE_NAME}"
+
+                    // Run the new container on port 8080
+                    sh "docker run -d -p 8080:80 --name ${CONTAINER_NAME} ${IMAGE_NAME}"
                 }
             }
         }
 
         stage('Build Only') {
             when {
-                branch 'develop'
+                branch 'develop'  // Just build for develop branch, no deployment
             }
             steps {
                 echo "Build done. No deployment for develop branch."
