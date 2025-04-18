@@ -41,9 +41,10 @@ pipeline {
             steps {
                 echo "Deploying the container"
                 bat """
-                    docker stop site || echo "No running container"
-                    docker rm site || echo "No container to remove"
-                    docker run -d -p 81:80 --name site %DOCKER_REPO%:%TAG%
+                    echo Stopping existing containers
+                    docker-compose down
+                    echo Deploying the container
+                    docker-compose up -d
                 """
             }
         }

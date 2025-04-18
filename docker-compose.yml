@@ -1,0 +1,6 @@
+version: '3.3'
+services: 
+  web:
+    image: narlarushikesh/site:latest
+    ports:
+      - "81:80"
